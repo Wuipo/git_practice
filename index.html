@@ -159,21 +159,43 @@ async function convert(){
   }
 
   rateLine.textContent = "Aggiornamento…";
-  try{
-    const url = "https://api.frankfurter.app/latest?from=" + from + "&to=" + to;
-    const res = await fetch(url);
-    if(!res.ok) throw new Error("net");
-    const data = await res.json();
-    currentRate = data.rates[to];
-    rateLine.innerHTML = "1 " + from + " = <b>" + fmt(currentRate) + "</b> " + to;
-    updatedEl.innerHTML = '<span class="dot"></span>Tassi del ' +
-      new Date(data.date).toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"});
-    computeOutput();
-  }catch(e){
-    errEl.textContent = "⚠️ Impossibile aggiornare i tassi. Controlla la connessione.";
-    errEl.style.display = "block";
-    rateLine.textContent = "Errore di rete";
+
+  const sources = [
+    async()=>{
+      const r = await fetch("https://api.frankfurter.dev/v1/latest?from="+from+"&to="+to);
+      if(!r.ok) throw 0; const d = await r.json();
+      return { rate:d.rates[to], date:d.date };
+    },
+    async()=>{
+      const r = await fetch("https://api.frankfurter.app/latest?from="+from+"&to="+to);
+      if(!r.ok) throw 0; const d = await r.json();
+      return { rate:d.rates[to], date:d.date };
+    },
+    async()=>{
+      const r = await fetch("https://open.er-api.com/v6/latest/"+from);
+      if(!r.ok) throw 0; const d = await r.json();
+      if(!d.rates || d.rates[to]==null) throw 0;
+      return { rate:d.rates[to], date:(d.time_last_update_utc||"").slice(0,16) };
+    }
+  ];
+
+  for(const get of sources){
+    try{
+      const { rate, date } = await get();
+      if(rate==null || isNaN(rate)) throw 0;
+      currentRate = rate;
+      rateLine.innerHTML = "1 " + from + " = <b>" + fmt(currentRate) + "</b> " + to;
+      const d = new Date(date);
+      updatedEl.innerHTML = '<span class="dot"></span>Aggiornato ' +
+        (isNaN(d) ? date : d.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"}));
+      computeOutput();
+      return;
+    }catch(e){ /* prova la fonte successiva */ }
   }
+
+  errEl.textContent = "⚠️ Impossibile aggiornare i tassi. Controlla la connessione e riprova.";
+  errEl.style.display = "block";
+  rateLine.textContent = "Errore di rete";
 }
 
 function computeOutput(){
