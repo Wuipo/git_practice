@@ -3,229 +3,278 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0f172a">
-<title>Convertitore Valute</title>
+<meta name="theme-color" content="#05010f">
+<title>NEXUS · Convertitore Valute</title>
 <style>
   :root{
-    --bg:#0f172a; --card:#1e293b; --card2:#273449;
-    --accent:#38bdf8; --accent2:#22d3ee;
-    --text:#f1f5f9; --muted:#94a3b8; --border:#334155;
-    --ok:#4ade80;
+    --bg:#05010f;
+    --neon:#00f0ff;
+    --neon2:#b14bff;
+    --pink:#ff2d95;
+    --text:#eafcff;
+    --muted:#7d8db5;
+    --glass:rgba(18,24,48,.55);
+    --line:rgba(0,240,255,.25);
   }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%}
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:linear-gradient(160deg,#0f172a 0%,#15233b 100%);
-    color:var(--text); min-height:100vh; min-height:100dvh;
+    font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+    color:var(--text); background:var(--bg); overflow-x:hidden;
+    min-height:100vh; min-height:100dvh;
     display:flex; flex-direction:column; align-items:center;
-    padding:24px 16px 40px;
+    padding:30px 16px 50px; position:relative;
   }
-  .wrap{width:100%; max-width:440px}
-  h1{font-size:1.5rem; margin:8px 0 2px; display:flex; align-items:center; gap:10px}
-  .sub{color:var(--muted); font-size:.85rem; margin:0 0 22px}
-  .card{
-    background:var(--card); border:1px solid var(--border);
-    border-radius:18px; padding:18px; margin-bottom:14px;
-    box-shadow:0 10px 30px rgba(0,0,0,.25);
+  /* animated aurora background */
+  body::before{
+    content:""; position:fixed; inset:-30%; z-index:-2;
+    background:
+      radial-gradient(45% 45% at 20% 25%, rgba(0,240,255,.22), transparent 60%),
+      radial-gradient(40% 40% at 80% 20%, rgba(177,75,255,.22), transparent 60%),
+      radial-gradient(50% 50% at 60% 90%, rgba(255,45,149,.18), transparent 60%);
+    filter:blur(20px); animation:drift 16s ease-in-out infinite alternate;
   }
-  label{display:block; font-size:.78rem; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:.04em}
-  .row{display:flex; gap:10px; align-items:stretch}
+  @keyframes drift{from{transform:translate(-3%,-2%) scale(1)}to{transform:translate(4%,3%) scale(1.12)}}
+  /* cyber grid */
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(0,240,255,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,240,255,.06) 1px, transparent 1px);
+    background-size:42px 42px;
+    mask-image:linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
+  }
+  .wrap{width:100%; max-width:430px; position:relative; z-index:1}
+
+  .brand{text-align:center; margin-bottom:26px}
+  .logo{
+    font-size:1.9rem; font-weight:800; letter-spacing:.32em;
+    background:linear-gradient(90deg,var(--neon),var(--neon2),var(--pink),var(--neon));
+    background-size:300% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:flow 6s linear infinite;
+    text-shadow:0 0 26px rgba(0,240,255,.25);
+  }
+  @keyframes flow{to{background-position:300% 0}}
+  .tag{
+    margin-top:8px; font-size:.66rem; letter-spacing:.42em; color:var(--muted);
+    text-transform:uppercase;
+  }
+  .tag .live{color:var(--neon)}
+
+  .panel{
+    position:relative; background:var(--glass);
+    border:1px solid var(--line); border-radius:20px;
+    padding:20px 18px; margin-bottom:14px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 0 0 1px rgba(255,255,255,.03), 0 20px 50px rgba(0,0,0,.55),
+               inset 0 1px 0 rgba(255,255,255,.06);
+    overflow:hidden;
+  }
+  .panel::before{ /* corner accent */
+    content:""; position:absolute; top:0; left:0; width:60px; height:60px;
+    border-top:2px solid var(--neon); border-left:2px solid var(--neon);
+    border-top-left-radius:20px; opacity:.6;
+  }
+  .panel::after{
+    content:""; position:absolute; bottom:0; right:0; width:60px; height:60px;
+    border-bottom:2px solid var(--neon2); border-right:2px solid var(--neon2);
+    border-bottom-right-radius:20px; opacity:.6;
+  }
+  .plabel{
+    font-size:.64rem; letter-spacing:.3em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:12px; display:flex; justify-content:space-between;
+  }
+  .row{display:flex; gap:12px; align-items:center}
   input[type=number]{
-    flex:1; min-width:0; font-size:1.7rem; font-weight:600;
-    background:transparent; border:none; color:var(--text); outline:none; width:100%;
+    flex:1; min-width:0; width:100%;
+    background:transparent; border:none; outline:none;
+    color:var(--text); font-size:2rem; font-weight:700; letter-spacing:.02em;
+    font-variant-numeric:tabular-nums;
+    text-shadow:0 0 18px rgba(0,240,255,.35);
   }
-  input[type=number]::-webkit-outer-spin-button,
-  input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  #output{color:var(--neon); text-shadow:0 0 22px rgba(0,240,255,.55)}
+
+  .selwrap{position:relative; flex:0 0 auto}
   select{
-    appearance:none; background:var(--card2); color:var(--text);
-    border:1px solid var(--border); border-radius:12px;
-    padding:12px 36px 12px 14px; font-size:1rem; font-weight:600;
-    outline:none; cursor:pointer; min-width:120px;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");
-    background-repeat:no-repeat; background-position:right 12px center;
+    appearance:none; cursor:pointer;
+    background:rgba(0,240,255,.06); color:var(--text);
+    border:1px solid var(--line); border-radius:14px;
+    padding:12px 38px 12px 14px; font-size:.95rem; font-weight:700; letter-spacing:.05em;
+    outline:none; min-width:118px;
+    transition:border-color .2s, box-shadow .2s;
   }
-  .result input{font-size:1.7rem; color:var(--accent2)}
-  .swap{
-    display:flex; justify-content:center; margin:-6px 0;
-    position:relative; z-index:2;
+  select:focus{border-color:var(--neon); box-shadow:0 0 16px rgba(0,240,255,.4)}
+  .selwrap::after{
+    content:"▾"; position:absolute; right:14px; top:50%; transform:translateY(-50%);
+    color:var(--neon); pointer-events:none; font-size:.8rem;
   }
+  option{background:#0a0a1f; color:var(--text)}
+
+  .swap{display:flex; justify-content:center; margin:-8px 0; position:relative; z-index:3}
   .swap button{
-    width:46px; height:46px; border-radius:50%;
-    background:var(--accent); color:#06283d; border:4px solid var(--bg);
-    font-size:1.3rem; cursor:pointer; display:grid; place-items:center;
-    transition:transform .25s ease; box-shadow:0 4px 14px rgba(56,189,248,.4);
+    width:52px; height:52px; border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, #0a1838, #05010f);
+    border:1.5px solid var(--neon); color:var(--neon);
+    font-size:1.4rem; cursor:pointer; display:grid; place-items:center;
+    box-shadow:0 0 22px rgba(0,240,255,.45), inset 0 0 12px rgba(0,240,255,.25);
+    transition:transform .35s cubic-bezier(.5,1.6,.4,1);
   }
-  .swap button:active{transform:rotate(180deg) scale(.92)}
+  .swap button:active{transform:rotate(180deg) scale(.9)}
+
   .rate{
-    text-align:center; color:var(--muted); font-size:.85rem; margin:6px 0 0;
+    text-align:center; margin:14px 0 0; font-size:.92rem; color:var(--muted);
+    font-variant-numeric:tabular-nums;
   }
-  .rate b{color:var(--text)}
-  .updated{text-align:center; color:var(--muted); font-size:.72rem; margin-top:14px}
-  .dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--ok); margin-right:5px; vertical-align:middle}
-  .quick{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:4px}
-  .quick button{
-    background:var(--card2); color:var(--text); border:1px solid var(--border);
-    border-radius:999px; padding:7px 14px; font-size:.82rem; cursor:pointer;
+  .rate b{color:var(--text); text-shadow:0 0 14px rgba(0,240,255,.4)}
+  .rate.loading{color:var(--neon); animation:pulse 1.1s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.4}}
+
+  .chips{display:flex; flex-wrap:wrap; gap:9px; justify-content:center; margin-top:18px}
+  .chips button{
+    background:rgba(177,75,255,.08); color:var(--text);
+    border:1px solid rgba(177,75,255,.35); border-radius:999px;
+    padding:8px 15px; font-size:.78rem; font-weight:600; letter-spacing:.04em;
+    cursor:pointer; transition:.2s;
   }
-  .quick button:active{background:var(--accent); color:#06283d}
-  .err{color:#fca5a5; text-align:center; font-size:.85rem; margin-top:10px; display:none}
-  footer{color:var(--muted); font-size:.7rem; margin-top:18px; text-align:center}
-  footer a{color:var(--accent)}
+  .chips button:active{background:var(--neon); color:#05010f; border-color:var(--neon); box-shadow:0 0 16px var(--neon)}
+
+  .updated{text-align:center; color:var(--muted); font-size:.7rem; margin-top:18px; letter-spacing:.08em}
+  .dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--neon);
+       margin-right:7px; box-shadow:0 0 10px var(--neon); animation:blink 1.6s ease-in-out infinite}
+  @keyframes blink{50%{opacity:.3}}
+  .err{display:none; text-align:center; color:var(--pink); font-size:.85rem; margin-top:12px; text-shadow:0 0 12px rgba(255,45,149,.4)}
+  footer{margin-top:22px; text-align:center; font-size:.66rem; color:var(--muted); letter-spacing:.1em}
+  footer a{color:var(--neon); text-decoration:none}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>💱 Convertitore Valute</h1>
-  <p class="sub">Tassi di cambio in tempo reale</p>
+  <div class="brand">
+    <div class="logo">N E X U S</div>
+    <div class="tag"><span class="live">●</span> Convertitore Valute · Realtime</div>
+  </div>
 
-  <div class="card">
-    <label>Importo</label>
+  <div class="panel">
+    <div class="plabel"><span>Importo</span><span>Sorgente</span></div>
     <div class="row">
       <input id="amount" type="number" inputmode="decimal" value="1" min="0" step="any">
-      <select id="from"></select>
+      <div class="selwrap"><select id="from"></select></div>
     </div>
   </div>
 
-  <div class="swap"><button id="swapBtn" title="Inverti">⇅</button></div>
+  <div class="swap"><button id="swapBtn" aria-label="Inverti">⇅</button></div>
 
-  <div class="card result">
-    <label>Convertito in</label>
+  <div class="panel">
+    <div class="plabel"><span>Convertito</span><span>Destinazione</span></div>
     <div class="row">
       <input id="output" type="text" readonly value="—">
-      <select id="to"></select>
+      <div class="selwrap"><select id="to"></select></div>
     </div>
   </div>
 
-  <p class="rate" id="rateLine">Caricamento…</p>
+  <p class="rate loading" id="rateLine">Inizializzazione…</p>
 
-  <div class="quick" id="quick"></div>
+  <div class="chips" id="chips"></div>
 
   <p class="err" id="err"></p>
   <p class="updated" id="updated"></p>
 
-  <footer>Dati: <a href="https://www.frankfurter.app" target="_blank" rel="noopener">Frankfurter</a> · Banca Centrale Europea</footer>
+  <footer>POWERED BY <a href="https://www.frankfurter.app" target="_blank" rel="noopener">FRANKFURTER</a> · ECB</footer>
 </div>
 
 <script>
 const CURRENCIES = {
-  EUR:"🇪🇺 Euro", USD:"🇺🇸 Dollaro USA", GBP:"🇬🇧 Sterlina", CHF:"🇨🇭 Franco svizzero",
-  JPY:"🇯🇵 Yen", CNY:"🇨🇳 Yuan", AUD:"🇦🇺 Dollaro australiano", CAD:"🇨🇦 Dollaro canadese",
-  SEK:"🇸🇪 Corona svedese", NOK:"🇳🇴 Corona norvegese", DKK:"🇩🇰 Corona danese",
-  PLN:"🇵🇱 Zloty", CZK:"🇨🇿 Corona ceca", HUF:"🇭🇺 Fiorino", RON:"🇷🇴 Leu",
-  BGN:"🇧🇬 Lev", TRY:"🇹🇷 Lira turca", RUB:"🇷🇺 Rublo", BRL:"🇧🇷 Real",
-  INR:"🇮🇳 Rupia indiana", KRW:"🇰🇷 Won", SGD:"🇸🇬 Dollaro Singapore",
-  HKD:"🇭🇰 Dollaro HK", MXN:"🇲🇽 Peso messicano", ZAR:"🇿🇦 Rand",
-  NZD:"🇳🇿 Dollaro NZ", THB:"🇹🇭 Baht", IDR:"🇮🇩 Rupia indonesiana",
-  ILS:"🇮🇱 Shekel", PHP:"🇵🇭 Peso filippino", MYR:"🇲🇾 Ringgit", ISK:"🇮🇸 Corona islandese"
+  EUR:"🇪🇺 EUR", USD:"🇺🇸 USD", GBP:"🇬🇧 GBP", CHF:"🇨🇭 CHF",
+  JPY:"🇯🇵 JPY", CNY:"🇨🇳 CNY", AUD:"🇦🇺 AUD", CAD:"🇨🇦 CAD",
+  SEK:"🇸🇪 SEK", NOK:"🇳🇴 NOK", DKK:"🇩🇰 DKK", PLN:"🇵🇱 PLN",
+  CZK:"🇨🇿 CZK", HUF:"🇭🇺 HUF", RON:"🇷🇴 RON", BGN:"🇧🇬 BGN",
+  TRY:"🇹🇷 TRY", BRL:"🇧🇷 BRL", INR:"🇮🇳 INR", KRW:"🇰🇷 KRW",
+  SGD:"🇸🇬 SGD", HKD:"🇭🇰 HKD", MXN:"🇲🇽 MXN", ZAR:"🇿🇦 ZAR",
+  NZD:"🇳🇿 NZD", THB:"🇹🇭 THB", IDR:"🇮🇩 IDR", ILS:"🇮🇱 ILS",
+  PHP:"🇵🇭 PHP", MYR:"🇲🇾 MYR", ISK:"🇮🇸 ISK"
 };
-
 const QUICK = [["EUR","USD"],["USD","EUR"],["EUR","GBP"],["EUR","CHF"],["USD","JPY"]];
 
-const amountEl = document.getElementById("amount");
-const fromEl = document.getElementById("from");
-const toEl = document.getElementById("to");
-const outputEl = document.getElementById("output");
-const rateLine = document.getElementById("rateLine");
-const updatedEl = document.getElementById("updated");
-const errEl = document.getElementById("err");
-
-let currentRate = null;
+const $ = id => document.getElementById(id);
+const amountEl=$("amount"), fromEl=$("from"), toEl=$("to"), outputEl=$("output");
+const rateLine=$("rateLine"), updatedEl=$("updated"), errEl=$("err");
+let currentRate=null;
 
 function fillSelects(){
   for(const code in CURRENCIES){
-    const label = CURRENCIES[code] + " (" + code + ")";
-    const o1 = new Option(label, code); fromEl.add(o1);
-    const o2 = new Option(label, code); toEl.add(o2);
+    const label = CURRENCIES[code];
+    fromEl.add(new Option(label, code));
+    toEl.add(new Option(label, code));
   }
-  fromEl.value = "EUR";
-  toEl.value = "USD";
+  fromEl.value="EUR"; toEl.value="USD";
 }
-
 function fmt(n){
-  return new Intl.NumberFormat("it-IT",{minimumFractionDigits:2, maximumFractionDigits:4}).format(n);
+  return new Intl.NumberFormat("it-IT",{minimumFractionDigits:2,maximumFractionDigits:4}).format(n);
+}
+function computeOutput(){
+  const a=parseFloat(amountEl.value);
+  if(isNaN(a)||currentRate===null){outputEl.value="—";return;}
+  outputEl.value=fmt(a*currentRate);
 }
 
 async function convert(){
-  const from = fromEl.value, to = toEl.value;
-  const amount = parseFloat(amountEl.value);
-  errEl.style.display = "none";
+  const from=fromEl.value, to=toEl.value;
+  errEl.style.display="none";
 
-  if(from === to){
-    currentRate = 1;
-    rateLine.innerHTML = "1 " + from + " = <b>1.00</b> " + to;
-    outputEl.value = isNaN(amount) ? "—" : fmt(amount);
-    return;
+  if(from===to){
+    currentRate=1;
+    rateLine.classList.remove("loading");
+    rateLine.innerHTML="1 "+from+" = <b>1.00</b> "+to;
+    computeOutput(); return;
   }
 
-  rateLine.textContent = "Aggiornamento…";
+  rateLine.classList.add("loading");
+  rateLine.textContent="Sincronizzazione tassi…";
 
-  const sources = [
-    async()=>{
-      const r = await fetch("https://api.frankfurter.dev/v1/latest?from="+from+"&to="+to);
-      if(!r.ok) throw 0; const d = await r.json();
-      return { rate:d.rates[to], date:d.date };
-    },
-    async()=>{
-      const r = await fetch("https://api.frankfurter.app/latest?from="+from+"&to="+to);
-      if(!r.ok) throw 0; const d = await r.json();
-      return { rate:d.rates[to], date:d.date };
-    },
-    async()=>{
-      const r = await fetch("https://open.er-api.com/v6/latest/"+from);
-      if(!r.ok) throw 0; const d = await r.json();
-      if(!d.rates || d.rates[to]==null) throw 0;
-      return { rate:d.rates[to], date:(d.time_last_update_utc||"").slice(0,16) };
-    }
+  const sources=[
+    async()=>{const r=await fetch("https://api.frankfurter.dev/v1/latest?from="+from+"&to="+to);if(!r.ok)throw 0;const d=await r.json();return{rate:d.rates[to],date:d.date};},
+    async()=>{const r=await fetch("https://api.frankfurter.app/latest?from="+from+"&to="+to);if(!r.ok)throw 0;const d=await r.json();return{rate:d.rates[to],date:d.date};},
+    async()=>{const r=await fetch("https://open.er-api.com/v6/latest/"+from);if(!r.ok)throw 0;const d=await r.json();if(!d.rates||d.rates[to]==null)throw 0;return{rate:d.rates[to],date:(d.time_last_update_utc||"").slice(0,16)};}
   ];
 
   for(const get of sources){
     try{
-      const { rate, date } = await get();
-      if(rate==null || isNaN(rate)) throw 0;
-      currentRate = rate;
-      rateLine.innerHTML = "1 " + from + " = <b>" + fmt(currentRate) + "</b> " + to;
-      const d = new Date(date);
-      updatedEl.innerHTML = '<span class="dot"></span>Aggiornato ' +
-        (isNaN(d) ? date : d.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"}));
+      const {rate,date}=await get();
+      if(rate==null||isNaN(rate))throw 0;
+      currentRate=rate;
+      rateLine.classList.remove("loading");
+      rateLine.innerHTML="1 "+from+" = <b>"+fmt(currentRate)+"</b> "+to;
+      const d=new Date(date);
+      updatedEl.innerHTML='<span class="dot"></span>SYNC · '+
+        (isNaN(d)?date:d.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"}));
       computeOutput();
       return;
-    }catch(e){ /* prova la fonte successiva */ }
+    }catch(e){}
   }
-
-  errEl.textContent = "⚠️ Impossibile aggiornare i tassi. Controlla la connessione e riprova.";
-  errEl.style.display = "block";
-  rateLine.textContent = "Errore di rete";
+  rateLine.classList.remove("loading");
+  rateLine.textContent="— connessione persa —";
+  errEl.textContent="⚠️ Tassi non disponibili. Verifica la connessione e riprova.";
+  errEl.style.display="block";
 }
 
-function computeOutput(){
-  const amount = parseFloat(amountEl.value);
-  if(isNaN(amount) || currentRate === null){ outputEl.value = "—"; return; }
-  outputEl.value = fmt(amount * currentRate);
-}
-
-function buildQuick(){
-  const box = document.getElementById("quick");
+function buildChips(){
+  const box=$("chips");
   QUICK.forEach(([f,t])=>{
-    const b = document.createElement("button");
-    b.textContent = f + " → " + t;
-    b.onclick = ()=>{ fromEl.value=f; toEl.value=t; convert(); };
+    const b=document.createElement("button");
+    b.textContent=f+" → "+t;
+    b.onclick=()=>{fromEl.value=f;toEl.value=t;convert();};
     box.appendChild(b);
   });
 }
 
-document.getElementById("swapBtn").onclick = ()=>{
-  const t = fromEl.value; fromEl.value = toEl.value; toEl.value = t;
-  convert();
-};
+$("swapBtn").onclick=()=>{const t=fromEl.value;fromEl.value=toEl.value;toEl.value=t;convert();};
+amountEl.addEventListener("input",computeOutput);
+fromEl.addEventListener("change",convert);
+toEl.addEventListener("change",convert);
 
-amountEl.addEventListener("input", computeOutput);
-fromEl.addEventListener("change", convert);
-toEl.addEventListener("change", convert);
-
-fillSelects();
-buildQuick();
-convert();
+fillSelects(); buildChips(); convert();
 </script>
 </body>
 </html>
