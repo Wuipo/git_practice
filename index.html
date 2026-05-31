@@ -86,14 +86,14 @@
     color:var(--muted); margin-bottom:12px; display:flex; justify-content:space-between;
   }
   .row{display:flex; gap:12px; align-items:center}
-  input[type=number]{
+  .row input{
     flex:1; min-width:0; width:100%;
-    background:transparent; border:none; outline:none;
+    background:transparent; border:none; outline:none; -webkit-appearance:none;
     color:var(--text); font-size:2rem; font-weight:700; letter-spacing:.02em;
     font-variant-numeric:tabular-nums;
     text-shadow:0 0 18px rgba(0,240,255,.35);
   }
-  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .row input::-webkit-outer-spin-button,.row input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   #output{color:var(--neon); text-shadow:0 0 22px rgba(0,240,255,.55)}
 
   .selwrap{position:relative; flex:0 0 auto}
