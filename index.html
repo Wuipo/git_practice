@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f172a">
+<title>Convertitore Valute</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#273449;
+    --accent:#38bdf8; --accent2:#22d3ee;
+    --text:#f1f5f9; --muted:#94a3b8; --border:#334155;
+    --ok:#4ade80;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(160deg,#0f172a 0%,#15233b 100%);
+    color:var(--text); min-height:100vh; min-height:100dvh;
+    display:flex; flex-direction:column; align-items:center;
+    padding:24px 16px 40px;
+  }
+  .wrap{width:100%; max-width:440px}
+  h1{font-size:1.5rem; margin:8px 0 2px; display:flex; align-items:center; gap:10px}
+  .sub{color:var(--muted); font-size:.85rem; margin:0 0 22px}
+  .card{
+    background:var(--card); border:1px solid var(--border);
+    border-radius:18px; padding:18px; margin-bottom:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  label{display:block; font-size:.78rem; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:.04em}
+  .row{display:flex; gap:10px; align-items:stretch}
+  input[type=number]{
+    flex:1; min-width:0; font-size:1.7rem; font-weight:600;
+    background:transparent; border:none; color:var(--text); outline:none; width:100%;
+  }
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  select{
+    appearance:none; background:var(--card2); color:var(--text);
+    border:1px solid var(--border); border-radius:12px;
+    padding:12px 36px 12px 14px; font-size:1rem; font-weight:600;
+    outline:none; cursor:pointer; min-width:120px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat:no-repeat; background-position:right 12px center;
+  }
+  .result input{font-size:1.7rem; color:var(--accent2)}
+  .swap{
+    display:flex; justify-content:center; margin:-6px 0;
+    position:relative; z-index:2;
+  }
+  .swap button{
+    width:46px; height:46px; border-radius:50%;
+    background:var(--accent); color:#06283d; border:4px solid var(--bg);
+    font-size:1.3rem; cursor:pointer; display:grid; place-items:center;
+    transition:transform .25s ease; box-shadow:0 4px 14px rgba(56,189,248,.4);
+  }
+  .swap button:active{transform:rotate(180deg) scale(.92)}
+  .rate{
+    text-align:center; color:var(--muted); font-size:.85rem; margin:6px 0 0;
+  }
+  .rate b{color:var(--text)}
+  .updated{text-align:center; color:var(--muted); font-size:.72rem; margin-top:14px}
+  .dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--ok); margin-right:5px; vertical-align:middle}
+  .quick{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:4px}
+  .quick button{
+    background:var(--card2); color:var(--text); border:1px solid var(--border);
+    border-radius:999px; padding:7px 14px; font-size:.82rem; cursor:pointer;
+  }
+  .quick button:active{background:var(--accent); color:#06283d}
+  .err{color:#fca5a5; text-align:center; font-size:.85rem; margin-top:10px; display:none}
+  footer{color:var(--muted); font-size:.7rem; margin-top:18px; text-align:center}
+  footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>💱 Convertitore Valute</h1>
+  <p class="sub">Tassi di cambio in tempo reale</p>
+
+  <div class="card">
+    <label>Importo</label>
+    <div class="row">
+      <input id="amount" type="number" inputmode="decimal" value="1" min="0" step="any">
+      <select id="from"></select>
+    </div>
+  </div>
+
+  <div class="swap"><button id="swapBtn" title="Inverti">⇅</button></div>
+
+  <div class="card result">
+    <label>Convertito in</label>
+    <div class="row">
+      <input id="output" type="text" readonly value="—">
+      <select id="to"></select>
+    </div>
+  </div>
+
+  <p class="rate" id="rateLine">Caricamento…</p>
+
+  <div class="quick" id="quick"></div>
+
+  <p class="err" id="err"></p>
+  <p class="updated" id="updated"></p>
+
+  <footer>Dati: <a href="https://www.frankfurter.app" target="_blank" rel="noopener">Frankfurter</a> · Banca Centrale Europea</footer>
+</div>
+
+<script>
+const CURRENCIES = {
+  EUR:"🇪🇺 Euro", USD:"🇺🇸 Dollaro USA", GBP:"🇬🇧 Sterlina", CHF:"🇨🇭 Franco svizzero",
+  JPY:"🇯🇵 Yen", CNY:"🇨🇳 Yuan", AUD:"🇦🇺 Dollaro australiano", CAD:"🇨🇦 Dollaro canadese",
+  SEK:"🇸🇪 Corona svedese", NOK:"🇳🇴 Corona norvegese", DKK:"🇩🇰 Corona danese",
+  PLN:"🇵🇱 Zloty", CZK:"🇨🇿 Corona ceca", HUF:"🇭🇺 Fiorino", RON:"🇷🇴 Leu",
+  BGN:"🇧🇬 Lev", TRY:"🇹🇷 Lira turca", RUB:"🇷🇺 Rublo", BRL:"🇧🇷 Real",
+  INR:"🇮🇳 Rupia indiana", KRW:"🇰🇷 Won", SGD:"🇸🇬 Dollaro Singapore",
+  HKD:"🇭🇰 Dollaro HK", MXN:"🇲🇽 Peso messicano", ZAR:"🇿🇦 Rand",
+  NZD:"🇳🇿 Dollaro NZ", THB:"🇹🇭 Baht", IDR:"🇮🇩 Rupia indonesiana",
+  ILS:"🇮🇱 Shekel", PHP:"🇵🇭 Peso filippino", MYR:"🇲🇾 Ringgit", ISK:"🇮🇸 Corona islandese"
+};
+
+const QUICK = [["EUR","USD"],["USD","EUR"],["EUR","GBP"],["EUR","CHF"],["USD","JPY"]];
+
+const amountEl = document.getElementById("amount");
+const fromEl = document.getElementById("from");
+const toEl = document.getElementById("to");
+const outputEl = document.getElementById("output");
+const rateLine = document.getElementById("rateLine");
+const updatedEl = document.getElementById("updated");
+const errEl = document.getElementById("err");
+
+let currentRate = null;
+
+function fillSelects(){
+  for(const code in CURRENCIES){
+    const label = CURRENCIES[code] + " (" + code + ")";
+    const o1 = new Option(label, code); fromEl.add(o1);
+    const o2 = new Option(label, code); toEl.add(o2);
+  }
+  fromEl.value = "EUR";
+  toEl.value = "USD";
+}
+
+function fmt(n){
+  return new Intl.NumberFormat("it-IT",{minimumFractionDigits:2, maximumFractionDigits:4}).format(n);
+}
+
+async function convert(){
+  const from = fromEl.value, to = toEl.value;
+  const amount = parseFloat(amountEl.value);
+  errEl.style.display = "none";
+
+  if(from === to){
+    currentRate = 1;
+    rateLine.innerHTML = "1 " + from + " = <b>1.00</b> " + to;
+    outputEl.value = isNaN(amount) ? "—" : fmt(amount);
+    return;
+  }
+
+  rateLine.textContent = "Aggiornamento…";
+  try{
+    const url = "https://api.frankfurter.app/latest?from=" + from + "&to=" + to;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("net");
+    const data = await res.json();
+    currentRate = data.rates[to];
+    rateLine.innerHTML = "1 " + from + " = <b>" + fmt(currentRate) + "</b> " + to;
+    updatedEl.innerHTML = '<span class="dot"></span>Tassi del ' +
+      new Date(data.date).toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"});
+    computeOutput();
+  }catch(e){
+    errEl.textContent = "⚠️ Impossibile aggiornare i tassi. Controlla la connessione.";
+    errEl.style.display = "block";
+    rateLine.textContent = "Errore di rete";
+  }
+}
+
+function computeOutput(){
+  const amount = parseFloat(amountEl.value);
+  if(isNaN(amount) || currentRate === null){ outputEl.value = "—"; return; }
+  outputEl.value = fmt(amount * currentRate);
+}
+
+function buildQuick(){
+  const box = document.getElementById("quick");
+  QUICK.forEach(([f,t])=>{
+    const b = document.createElement("button");
+    b.textContent = f + " → " + t;
+    b.onclick = ()=>{ fromEl.value=f; toEl.value=t; convert(); };
+    box.appendChild(b);
+  });
+}
+
+document.getElementById("swapBtn").onclick = ()=>{
+  const t = fromEl.value; fromEl.value = toEl.value; toEl.value = t;
+  convert();
+};
+
+amountEl.addEventListener("input", computeOutput);
+fromEl.addEventListener("change", convert);
+toEl.addEventListener("change", convert);
+
+fillSelects();
+buildQuick();
+convert();
+</script>
+</body>
+</html>
